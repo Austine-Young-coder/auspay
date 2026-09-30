@@ -1,4 +1,4 @@
-# Fintech App Clone
+AUSPAY
 
 An advanced and feature-rich Fintech app built with **React Native** using modern tools and practices. This app replicates a functional fintech platform with an intuitive user experience, robust state management, dynamic UI elements, and secure authentication.
 
@@ -64,5 +64,5 @@ An advanced and feature-rich Fintech app built with **React Native** using moder
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/codeMYNK/ReactNative-Fintech-App.git
+   git clone https://github.com/austine-young-coder/auspay
    cd fintech
