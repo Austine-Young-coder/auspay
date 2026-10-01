@@ -1,4 +1,4 @@
 //
 // @generated
-// A blank Swift file must be created for native modules with Swift files to work correctly.
+// This blank Swift file was created for native modules with Swift files to work correctly.
 //

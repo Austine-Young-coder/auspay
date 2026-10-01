@@ -65,4 +65,4 @@ An advanced and feature-rich Fintech app built with **React Native** using moder
 1. Clone the repository:
    ```bash
    git clone https://github.com/austine-young-coder/auspay
-   cd fintech
+   cd auspay
