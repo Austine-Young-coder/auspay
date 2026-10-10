@@ -1,104 +1,148 @@
-import Colors from '@/constants/Colors';
-import { defaultStyles } from '@/constants/Styles';
-import { useSignUp } from '@clerk/clerk-expo';
-import { Link, useRouter } from 'expo-router';
+
 import { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
+  Alert,
   KeyboardAvoidingView,
   Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  StyleSheet,
 } from 'react-native';
-const Page = () => {
-  const [countryCode, setCountryCode] = useState('+91');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const keyboardVerticalOffset = Platform.OS === 'ios' ? 80 : 0;
+import { Link, useRouter } from 'expo-router';
+import { supabase } from '@/lib/supabase';
+
+export default function SignupScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { signUp } = useSignUp();
 
   const onSignup = async () => {
-    const fullPhoneNumber = `${countryCode}${phoneNumber}`;
+    if (!email.trim() || !password) {
+      Alert.alert('Missing details', 'Enter your email and password.');
+      return;
+    }
+
+    if (password.length < 8) {
+      Alert.alert('Password too short', 'Use at least 8 characters.');
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      await signUp!.create({
-        phoneNumber: fullPhoneNumber,
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
       });
-      signUp!.preparePhoneNumberVerification();
 
-      router.push({ pathname: '/verify/[phone]', params: { phone: fullPhoneNumber } });
-    } catch (error) {
-      console.error('Error signing up:', error);
+      if (error) {
+        Alert.alert('Signup failed', error.message);
+        return;
+      }
+
+      if (data.session) {
+        router.replace('/dashboard');
+      } else {
+        Alert.alert(
+          'Check your email',
+          'If email confirmation is enabled, verify your email before logging in.',
+        );
+        router.replace('/login');
+      }
+    } catch {
+      Alert.alert('Error', 'Unable to create your account. Try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior="padding"
-      keyboardVerticalOffset={keyboardVerticalOffset}>
-      <View style={defaultStyles.container}>
-        <Text style={defaultStyles.header}>Let's get started!</Text>
-        <Text style={defaultStyles.descriptionText}>
-          Enter your phone number. We will send you a confirmation code there
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <Text style={styles.title}>Create your account</Text>
+      <Text style={styles.subtitle}>Get started with AUSPAY</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Email address"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Password (at least 8 characters)"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={onSignup}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? 'Creating account...' : 'Sign up'}
         </Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Country code"
-            placeholderTextColor={Colors.gray}
-            value={countryCode}
-          />
-          <TextInput
-            style={[styles.input, { flex: 1 }]}
-            placeholder="Mobile number"
-            placeholderTextColor={Colors.gray}
-            keyboardType="numeric"
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
-          />
-        </View>
+      </TouchableOpacity>
 
-        <Link href={'/login'} replace asChild>
-          <TouchableOpacity>
-            <Text style={defaultStyles.textLink}>Already have an account? Log in</Text>
-          </TouchableOpacity>
-        </Link>
-
-        <View style={{ flex: 1 }} />
-
-        <TouchableOpacity
-          style={[
-            defaultStyles.pillButton,
-            phoneNumber !== '' ? styles.enabled : styles.disabled,
-            { marginBottom: 20 },
-          ]}
-          onPress={onSignup}>
-          <Text style={defaultStyles.buttonText}>Sign up</Text>
-        </TouchableOpacity>
-      </View>
+      <Link href="/login" style={styles.link}>
+        Already have an account? Log in
+      </Link>
     </KeyboardAvoidingView>
   );
-};
+}
+
 const styles = StyleSheet.create({
-  inputContainer: {
-    marginVertical: 40,
-    flexDirection: 'row',
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: '#ffffff',
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#111111',
+  },
+  subtitle: {
+    fontSize: 16,
+    marginBottom: 28,
+    color: '#666666',
   },
   input: {
-    backgroundColor: Colors.lightGray,
-    padding: 20,
-    borderRadius: 16,
-    fontSize: 20,
-    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#dddddd',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    marginBottom: 16,
   },
-  enabled: {
-    backgroundColor: Colors.primary,
+  button: {
+    backgroundColor: '#111111',
+    borderRadius: 30,
+    padding: 17,
+    alignItems: 'center',
+    marginTop: 8,
   },
-  disabled: {
-    backgroundColor: Colors.primaryMuted,
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 17,
+    fontWeight: 'bold',
+  },
+  link: {
+    marginTop: 24,
+    textAlign: 'center',
+    color: '#176b43',
   },
 });
-export default Page;
