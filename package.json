@@ -13,6 +13,8 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.0",
+    "react-native-url-polyfill": "^2.0.0",
     "@clerk/clerk-expo": "^0.20.32",
     "@expo/vector-icons": "^14.0.0",
     "@react-native-async-storage/async-storage": "1.21.0",
