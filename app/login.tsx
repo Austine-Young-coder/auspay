@@ -1,180 +1,135 @@
-import Colors from '@/constants/Colors';
-import { defaultStyles } from '@/constants/Styles';
-import { isClerkAPIResponseError, useSignIn } from '@clerk/clerk-expo';
-import { Ionicons } from '@expo/vector-icons';
-import { Link, useRouter } from 'expo-router';
+
 import { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
+  Alert,
   KeyboardAvoidingView,
   Platform,
-  Alert,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  StyleSheet,
 } from 'react-native';
+import { Link, useRouter } from 'expo-router';
+import { supabase } from '@/lib/supabase';
 
-enum SignInType {
-  Phone,
-  Email,
-  Google,
-  Apple,
-}
-
-const Page = () => {
-  const [countryCode, setCountryCode] = useState('+91');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const keyboardVerticalOffset = Platform.OS === 'ios' ? 80 : 0;
+export default function LoginScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { signIn } = useSignIn();
 
-  const onSignIn = async (type: SignInType) => {
-    if (type === SignInType.Phone) {
-      try {
-        const fullPhoneNumber = `${countryCode}${phoneNumber}`;
+  const onSignIn = async () => {
+    if (!email.trim() || !password) {
+      Alert.alert('Missing details', 'Enter your email and password.');
+      return;
+    }
 
-        const { supportedFirstFactors } = await signIn!.create({
-          identifier: fullPhoneNumber,
-        });
-        const firstPhoneFactor: any = supportedFirstFactors.find((factor: any) => {
-          return factor.strategy === 'phone_code';
-        });
+    setLoading(true);
 
-        const { phoneNumberId } = firstPhoneFactor;
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
-        await signIn!.prepareFirstFactor({
-          strategy: 'phone_code',
-          phoneNumberId,
-        });
-
-        router.push({
-          pathname: '/verify/[phone]',
-          params: { phone: fullPhoneNumber, signin: 'true' },
-        });
-      } catch (err) {
-        console.log('error', JSON.stringify(err, null, 2));
-        if (isClerkAPIResponseError(err)) {
-          if (err.errors[0].code === 'form_identifier_not_found') {
-            Alert.alert('Error', err.errors[0].message);
-          }
-        }
+      if (error) {
+        Alert.alert('Login failed', error.message);
+        return;
       }
+
+      router.replace('/dashboard');
+    } catch {
+      Alert.alert('Error', 'Unable to log in. Try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior="padding"
-      keyboardVerticalOffset={keyboardVerticalOffset}>
-      <View style={defaultStyles.container}>
-        <Text style={defaultStyles.header}>Welcome back</Text>
-        <Text style={defaultStyles.descriptionText}>
-          Enter the phone number associated with your account
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <Text style={styles.title}>Welcome back</Text>
+      <Text style={styles.subtitle}>Log in to your AUSPAY account</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Email address"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={onSignIn}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? 'Logging in...' : 'Log in'}
         </Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Country code"
-            placeholderTextColor={Colors.gray}
-            value={countryCode}
-          />
-          <TextInput
-            style={[styles.input, { flex: 1 }]}
-            placeholder="Mobile number"
-            placeholderTextColor={Colors.gray}
-            keyboardType="numeric"
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
-          />
-        </View>
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            defaultStyles.pillButton,
-            phoneNumber !== '' ? styles.enabled : styles.disabled,
-            { marginBottom: 20 },
-          ]}
-          onPress={() => onSignIn(SignInType.Phone)}>
-          <Text style={defaultStyles.buttonText}>Continue</Text>
-        </TouchableOpacity>
-
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-          <View
-            style={{ flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: Colors.gray }}
-          />
-          <Text style={{ color: Colors.gray, fontSize: 20 }}>or</Text>
-          <View
-            style={{ flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: Colors.gray }}
-          />
-        </View>
-
-        <TouchableOpacity
-          onPress={() => onSignIn(SignInType.Email)}
-          style={[
-            defaultStyles.pillButton,
-            {
-              flexDirection: 'row',
-              gap: 16,
-              marginTop: 20,
-              backgroundColor: '#fff',
-            },
-          ]}>
-          <Ionicons name="mail" size={24} color={'#000'} />
-          <Text style={[defaultStyles.buttonText, { color: '#000' }]}>Continue with email </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => onSignIn(SignInType.Google)}
-          style={[
-            defaultStyles.pillButton,
-            {
-              flexDirection: 'row',
-              gap: 16,
-              marginTop: 20,
-              backgroundColor: '#fff',
-            },
-          ]}>
-          <Ionicons name="logo-google" size={24} color={'#000'} />
-          <Text style={[defaultStyles.buttonText, { color: '#000' }]}>Continue with email </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => onSignIn(SignInType.Apple)}
-          style={[
-            defaultStyles.pillButton,
-            {
-              flexDirection: 'row',
-              gap: 16,
-              marginTop: 20,
-              backgroundColor: '#fff',
-            },
-          ]}>
-          <Ionicons name="logo-apple" size={24} color={'#000'} />
-          <Text style={[defaultStyles.buttonText, { color: '#000' }]}>Continue with email </Text>
-        </TouchableOpacity>
-      </View>
+      <Link href="/signup" style={styles.link}>
+        Don't have an account? Sign up
+      </Link>
     </KeyboardAvoidingView>
   );
-};
+}
+
 const styles = StyleSheet.create({
-  inputContainer: {
-    marginVertical: 40,
-    flexDirection: 'row',
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: '#ffffff',
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#111111',
+  },
+  subtitle: {
+    fontSize: 16,
+    marginBottom: 28,
+    color: '#666666',
   },
   input: {
-    backgroundColor: Colors.lightGray,
-    padding: 20,
-    borderRadius: 16,
-    fontSize: 20,
-    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#dddddd',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    marginBottom: 16,
   },
-  enabled: {
-    backgroundColor: Colors.primary,
+  button: {
+    backgroundColor: '#111111',
+    borderRadius: 30,
+    padding: 17,
+    alignItems: 'center',
+    marginTop: 8,
   },
-  disabled: {
-    backgroundColor: Colors.primaryMuted,
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 17,
+    fontWeight: 'bold',
+  },
+  link: {
+    marginTop: 24,
+    textAlign: 'center',
+    color: '#176b43',
   },
 });
-export default Page;
