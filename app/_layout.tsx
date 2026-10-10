@@ -1,3 +1,4 @@
+
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import { Link, Stack, useRouter } from "expo-router";
@@ -9,16 +10,11 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
-
-
-
-
 export {
-  // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from "expo-router";
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Keep the splash screen visible until fonts are loaded.
 SplashScreen.preventAutoHideAsync();
 
 const InitialLayout = () => {
@@ -29,7 +25,6 @@ const InitialLayout = () => {
 
   const router = useRouter();
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -46,33 +41,50 @@ const InitialLayout = () => {
 
   return (
     <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="index"
+        options={{ headerShown: false }}
+      />
+
       <Stack.Screen
         name="signup"
         options={{
           title: "",
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: Colors.background },
+          headerStyle: {
+            backgroundColor: Colors.background,
+          },
           headerLeft: () => (
-            <TouchableOpacity onPress={router.back}>
-              <Ionicons name="arrow-back" size={24} color={Colors.dark} />
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={Colors.dark}
+              />
             </TouchableOpacity>
           ),
         }}
       />
+
       <Stack.Screen
         name="login"
         options={{
           title: "",
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: Colors.background },
+          headerStyle: {
+            backgroundColor: Colors.background,
+          },
           headerLeft: () => (
-            <TouchableOpacity onPress={router.back}>
-              <Ionicons name="arrow-back" size={24} color={Colors.dark} />
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={Colors.dark}
+              />
             </TouchableOpacity>
           ),
           headerRight: () => (
-            <Link href={"/help"} asChild>
+            <Link href="/help" asChild>
               <TouchableOpacity>
                 <Ionicons
                   name="help-circle-outline"
@@ -87,21 +99,15 @@ const InitialLayout = () => {
 
       <Stack.Screen
         name="help"
-        options={{ title: "Help", presentation: "modal" }}
+        options={{
+          title: "Help",
+          presentation: "modal",
+        }}
       />
 
       <Stack.Screen
-        name="verify/[phone]"
-        options={{
-          title: "",
-          headerShadowVisible: false,
-          headerStyle: { backgroundColor: Colors.background },
-          headerLeft: () => (
-            <TouchableOpacity onPress={router.back}>
-              <Ionicons name="arrow-back" size={24} color={Colors.dark} />
-            </TouchableOpacity>
-          ),
-        }}
+        name="dashboard"
+        options={{ headerShown: false }}
       />
     </Stack>
   );
