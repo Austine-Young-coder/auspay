@@ -1,22 +1,26 @@
 
+import Colors from '@/constants/Colors';
+import { defaultStyles } from '@/constants/Styles';
+import { supabase } from '@/lib/supabase';
+import { Ionicons } from '@expo/vector-icons';
+import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
+  View,
   Text,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
-  View,
-  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
 } from 'react-native';
-import { Link, useRouter } from 'expo-router';
-import { supabase } from '@/lib/supabase';
 
-export default function LoginScreen() {
+const Page = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? 80 : 0;
   const router = useRouter();
 
   const onSignIn = async () => {
@@ -33,103 +37,147 @@ export default function LoginScreen() {
         password,
       });
 
-      if (error) {
-        Alert.alert('Login failed', error.message);
-        return;
-      }
+      if (error) throw error;
 
       router.replace('/dashboard');
-    } catch {
-      Alert.alert('Error', 'Unable to log in. Try again.');
+    } catch (error: any) {
+      Alert.alert('Login failed', error.message || 'Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  const onOAuth = async (provider: 'google' | 'apple') => {
+    Alert.alert(
+      `${provider === 'google' ? 'Google' : 'Apple'} sign-in`,
+      'This sign-in option needs to be configured in Supabase before it can be used.'
+    );
+  };
+
   return (
     <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <Text style={styles.title}>Welcome back</Text>
-      <Text style={styles.subtitle}>Log in to your AUSPAY account</Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Email address"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={onSignIn}
-        disabled={loading}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? 'Logging in...' : 'Log in'}
+      style={{ flex: 1 }}
+      behavior="padding"
+      keyboardVerticalOffset={keyboardVerticalOffset}>
+      <View style={defaultStyles.container}>
+        <Text style={defaultStyles.header}>Welcome back</Text>
+        <Text style={defaultStyles.descriptionText}>
+          Enter the email address and password associated with your account
         </Text>
-      </TouchableOpacity>
 
-      <Link href="/signup" style={styles.link}>
-        Don't have an account? Sign up
-      </Link>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Email address"
+            placeholderTextColor={Colors.gray}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            value={email}
+            onChangeText={setEmail}
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor={Colors.gray}
+            secureTextEntry
+            autoCapitalize="none"
+            value={password}
+            onChangeText={setPassword}
+          />
+        </View>
+
+        <TouchableOpacity
+          style={[
+            defaultStyles.pillButton,
+            email.trim() && password ? styles.enabled : styles.disabled,
+            { marginBottom: 20 },
+          ]}
+          disabled={loading}
+          onPress={onSignIn}>
+          <Text style={defaultStyles.buttonText}>
+            {loading ? 'Signing in...' : 'Continue'}
+          </Text>
+        </TouchableOpacity>
+
+        <View style={styles.divider}>
+          <View style={styles.line} />
+          <Text style={{ color: Colors.gray, fontSize: 20 }}>or</Text>
+          <View style={styles.line} />
+        </View>
+
+        <TouchableOpacity
+          onPress={() => onOAuth('google')}
+          style={styles.providerButton}>
+          <Ionicons name="logo-google" size={24} color="#000" />
+          <Text style={styles.providerText}>Continue with Google</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => onOAuth('apple')}
+          style={styles.providerButton}>
+          <Ionicons name="logo-apple" size={24} color="#000" />
+          <Text style={styles.providerText}>Continue with Apple</Text>
+        </TouchableOpacity>
+
+        <View style={{ marginTop: 24 }}>
+          <Link href="/signup" asChild>
+            <TouchableOpacity>
+              <Text style={defaultStyles.textLink}>
+                Don't have an account? Sign up
+              </Text>
+            </TouchableOpacity>
+          </Link>
+        </View>
+      </View>
     </KeyboardAvoidingView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#ffffff',
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#111111',
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 28,
-    color: '#666666',
+  inputContainer: {
+    marginVertical: 40,
+    gap: 12,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#dddddd',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    marginBottom: 16,
+    backgroundColor: Colors.lightGray,
+    padding: 20,
+    borderRadius: 16,
+    fontSize: 18,
+    color: Colors.dark,
   },
-  button: {
-    backgroundColor: '#111111',
-    borderRadius: 30,
-    padding: 17,
+  enabled: {
+    backgroundColor: Colors.primary,
+  },
+  disabled: {
+    backgroundColor: Colors.primaryMuted,
+  },
+  divider: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
+    gap: 16,
   },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 17,
-    fontWeight: 'bold',
+  line: {
+    flex: 1,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: Colors.gray,
   },
-  link: {
-    marginTop: 24,
-    textAlign: 'center',
-    color: '#176b43',
+  providerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+    marginTop: 20,
+    backgroundColor: '#fff',
+    borderRadius: 999,
+    padding: 16,
+  },
+  providerText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
+
+export default Page;
