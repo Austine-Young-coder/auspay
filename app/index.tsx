@@ -66,10 +66,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#101114',
   },
   video: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-  },
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  width: '100%',
+  height: '100%',
+},
   content: {
     marginTop: 80,
     padding: 20,
