@@ -7,7 +7,7 @@ An advanced and feature-rich Fintech app built with **React Native** using moder
 ## 🚀 Features
 
 - **File-based Routing**: Simplified navigation using Expo Router.
-- **User Authentication**: OTP-based authentication powered by **Clerk**.
+- **User Authentication**: OTP-based authentication powered by **supabase**.
 - **State Management**: Efficient state management with **Zustand** and **MMKV**.
 - **Drag and Drop**: Interactive UI using **Reanimated** and **Gestures**.
 - **Dynamic Charts**: Build and display performant charts using **Victory Charts**.
@@ -27,7 +27,7 @@ An advanced and feature-rich Fintech app built with **React Native** using moder
 
 - **React Native**: Framework for building cross-platform mobile apps.
 - **Expo**: Simplified React Native development with prebuilt configurations.
-- **Clerk**: Authentication and user management.
+- **Supabase**: Authentication and user management.
 - **Reanimated**: Advanced animations for a seamless UI experience.
 - **Gestures**: Touch gesture management for drag-and-drop functionality.
 - **Zustand** and **MMKV**: State management and persistent storage.
@@ -38,7 +38,7 @@ An advanced and feature-rich Fintech app built with **React Native** using moder
 ## 🔑 Key Functionalities
 
 1. **Authentication**: 
-   - OTP-based sign-up and login using Clerk.
+   - OTP-based sign-up and login using supabase.
    - FaceID and passcode support for enhanced security.
 
 2. **Dynamic App Features**:
