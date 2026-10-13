@@ -4,6 +4,7 @@ import { defaultStyles } from '@/constants/Styles';
 import { useAssets } from 'expo-asset';
 import { ResizeMode, Video } from 'expo-av';
 import { Link } from 'expo-router';
+import { Platform } from 'react-native';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 const Page = () => {
@@ -11,16 +12,29 @@ const Page = () => {
 
   return (
     <View style={styles.container}>
-      {assets && (
-        <Video
-          resizeMode={ResizeMode.COVER}
-          isMuted
-          isLooping
-          shouldPlay
-          source={{ uri: assets[0].uri }}
-          style={styles.video}
-        />
-      )}
+{assets && (
+  <Video
+    resizeMode={ResizeMode.COVER}
+    isMuted
+    isLooping
+    shouldPlay
+    source={{ uri: assets[0].uri }}
+    style={styles.video}
+    //for web sizing
+    videoStyle={
+      Platform.OS === 'web'
+        ? {
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+          }
+        : undefined
+    }
+  />
+)}
 
       <View style={styles.content}>
         <Text style={styles.header}>
