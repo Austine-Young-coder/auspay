@@ -1,25 +1,21 @@
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useFonts } from 'expo-font';
+import { Link, Stack, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
+import Colors from '@/constants/Colors';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useFonts } from "expo-font";
-import { Link, Stack, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
-import Colors from "@/constants/Colors";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { TouchableOpacity } from "react-native";
-import { StatusBar } from "expo-status-bar";
+export { ErrorBoundary } from 'expo-router';
 
-export {
-  ErrorBoundary,
-} from "expo-router";
-
-// Keep the splash screen visible until fonts are loaded.
 SplashScreen.preventAutoHideAsync();
 
 const InitialLayout = () => {
   const [loaded, error] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
 
@@ -41,26 +37,17 @@ const InitialLayout = () => {
 
   return (
     <Stack>
-      <Stack.Screen
-        name="index"
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
 
       <Stack.Screen
         name="signup"
         options={{
-          title: "",
+          title: '',
           headerShadowVisible: false,
-          headerStyle: {
-            backgroundColor: Colors.background,
-          },
+          headerStyle: { backgroundColor: Colors.background },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons
-                name="arrow-back"
-                size={24}
-                color={Colors.dark}
-              />
+              <Ionicons name="arrow-back" size={24} color={Colors.dark} />
             </TouchableOpacity>
           ),
         }}
@@ -69,18 +56,12 @@ const InitialLayout = () => {
       <Stack.Screen
         name="login"
         options={{
-          title: "",
+          title: '',
           headerShadowVisible: false,
-          headerStyle: {
-            backgroundColor: Colors.background,
-          },
+          headerStyle: { backgroundColor: Colors.background },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons
-                name="arrow-back"
-                size={24}
-                color={Colors.dark}
-              />
+              <Ionicons name="arrow-back" size={24} color={Colors.dark} />
             </TouchableOpacity>
           ),
           headerRight: () => (
@@ -98,17 +79,28 @@ const InitialLayout = () => {
       />
 
       <Stack.Screen
-        name="help"
+        name="verify"
         options={{
-          title: "Help",
-          presentation: "modal",
+          title: '',
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: Colors.background },
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color={Colors.dark} />
+            </TouchableOpacity>
+          ),
         }}
       />
 
       <Stack.Screen
-        name="dashboard"
-        options={{ headerShown: false }}
+        name="help"
+        options={{
+          title: 'Help',
+          presentation: 'modal',
+        }}
       />
+
+      <Stack.Screen name="dashboard" options={{ headerShown: false }} />
     </Stack>
   );
 };
