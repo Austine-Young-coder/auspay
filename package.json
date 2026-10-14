@@ -13,6 +13,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
     "@supabase/supabase-js": "^2.57.0",
     "react-native-url-polyfill": "^2.0.0",
     "@expo/vector-icons": "^14.0.0",
